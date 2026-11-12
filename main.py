@@ -9,7 +9,7 @@ from gbq_connector import DbtClient
 
 from utils import runtime_args
 from workflows import add_historical_columns_workflow
-from workflows import fetch_report_data_workflow
+from workflows import fetch_regional_data_report_workflow
 from workflows import generate_schema_workflow
 from workflows import rename_historical_columns
 
@@ -37,7 +37,7 @@ def main():
 
     if args.dbt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/dbt refresh")
-        fetch_report_data_workflow.fetch_report(school_year, cloud_client)
+        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
         logging.info("Running dbt snapshot")
         dbt_conn = DbtClient()
         dbt_conn.run_job()
@@ -47,7 +47,7 @@ def main():
         add_historical_columns_workflow.run_workflow(school_year, cloud_client)
     elif args.semt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/SEMT refresh")
-        fetch_report_data_workflow.fetch_report(school_year, cloud_client)
+        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
         job_id = os.getenv("SEMT_JOB_ID")
         logging.info("Refreshing the SEMT datasource")
         dbt_conn = DbtClient()
@@ -61,7 +61,7 @@ def main():
         rename_historical_columns.run_workflow(cloud_client, rename_map)
     else:
         notifications.extend_job_name(f" - {args.school_year}")
-        fetch_report_data_workflow.fetch_report(school_year, cloud_client)
+        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
 
 
 if __name__ == "__main__":

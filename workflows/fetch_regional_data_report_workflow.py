@@ -6,7 +6,7 @@ from tenacity import *
 from gbq_connector import CloudStorageClient
 
 from schoolmint_api import SchoolmintAPI
-from ftp import FTP
+from entities.ftp import FTP
 from utils.data_config import BASE_FILE_NAME
 from utils.data_config import COLUMN_RENAME_MAP
 from utils.data_config import CURRENT_YEAR_FOLDER
