@@ -130,17 +130,17 @@ def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClien
 
             logging.info("Downloading Files")
             file = download_from_ftp(ftp, data_source)
+
+            df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
+            df_file["school_year_4_digit"] = data_source.school_year
+            check_for_deleted_columns(df_file)
+            df_file = df_file.rename(columns=COLUMN_RENAME_MAP)
+            if check_for_new_columns(df_file):
+                logging.info("Filtering out new columns that are not in the config.")
+                df_file = df_file[list(COLUMN_RENAME_MAP.values())]
+
+            bucket = os.getenv("BUCKET")
+            cloud_client.load_dataframe_to_cloud_as_csv(bucket, data_source.generate_upload_path(), df_file)
+            cloud_client.load_dataframe_to_cloud_as_parquet(bucket, data_source.generate_upload_path(as_parquet=True), df_file)
         finally:
             ftp.close()
-
-        df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
-        df_file["school_year_4_digit"] = data_source.school_year
-        check_for_deleted_columns(df_file)
-        df_file = df_file.rename(columns=COLUMN_RENAME_MAP)
-        if check_for_new_columns(df_file):
-            logging.info("Filtering out new columns that are not in the config.")
-            df_file = df_file[list(COLUMN_RENAME_MAP.values())]
-
-        bucket = os.getenv("BUCKET")
-        cloud_client.load_dataframe_to_cloud_as_csv(bucket, data_source.generate_upload_path(), df_file)
-        cloud_client.load_dataframe_to_cloud_as_parquet(bucket, data_source.generate_upload_path(as_parquet=True), df_file)

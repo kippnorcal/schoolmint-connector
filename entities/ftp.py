@@ -93,24 +93,6 @@ class FTP:
         os.utime(local_file, (latest.st_atime, latest.st_mtime))
         return True
 
-    def download_dir(self, remotedir, localdir):
-        """
-        Download all files from the remote directory to the local directory.
-
-        :param remotedir: Path of the remote directory that we are getting files from (ie. the FTP directory)
-        :type remotedir: String
-        :param localdir: Path of the local directory that we are saving files to
-        :type localdir: String
-        """
-        # 2 is the number of files plus the archive directory
-        if len(self.ftpsrv.listdir(remotedir)) >= 1:
-            time.sleep(30)  # wait to allow the files to finish uploading
-            for attr in self._list_files(remotedir):
-                local_file = os.path.join(localdir, attr.filename)
-                self.ftpsrv.get(posixpath.join(remotedir, attr.filename), local_file)
-                # preserve mtime so the latest file can be found by modification date
-                os.utime(local_file, (attr.st_atime, attr.st_mtime))
-
     def archive_remote_files(self, remotedir):
         """
         Archive all of the files in the specified remote directory by placing
