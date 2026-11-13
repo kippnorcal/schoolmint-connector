@@ -1,14 +1,29 @@
+from entities.data_source_types import DataSourceType
 
-# Folders for SFTP Transfer
-LOCALDIR = "files"
-SFTP_SOURCE_DIR = "/upload"
-SFTP_ARCHIVE_DIR = "/archive"
-SM_REPORT_NAME = "Regional Automated Application Data SFTP"
-
-# Paths in Google Cloud Storage
-BASE_FILE_NAME = "schoolmint_raw_data"
-CURRENT_YEAR_FOLDER = "schoolmint/schoolmint_raw_application_data"
-HISTORICAL_FOLDER = "schoolmint/schoolmint_raw_application_data_historical"
+DATA_SOURCE_CONFIG = {
+    DataSourceType.REGIONAL:{
+        "local_dir": "files/regional",
+        "source_type": DataSourceType.REGIONAL,
+        "sftp_source_dir": "/upload",
+        "sftp_archive_dir": "/archive",
+        "report_name": "Regional Automated Application Data SFTP",
+        "base_file_name": "schoolmint_raw_data",
+        "current_year_folder": "schoolmint/schoolmint_raw_application_data",
+        "historical_folder": "schoolmint/schoolmint_raw_application_data_historical",
+        "is_api": True,
+    },
+    DataSourceType.OAKLAND_ENROLLS: {
+        "local_dir": "files/oakland_enrolls",
+        "source_type": DataSourceType.OAKLAND_ENROLLS,
+        "sftp_source_dir": "",
+        "sftp_archive_dir": "",
+        "report_name": "",
+        "base_file_name": "",
+        "current_year_folder": "",
+        "historical_folder": "",
+        "is_api": False,
+    }
+}
 
 # Some of the colum names of the schoolmint report are incredibly long, so this map renames these columns
 COLUMN_RENAME_MAP = {
