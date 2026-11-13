@@ -1,19 +1,16 @@
 import logging
 import os
+from typing import List
 
 import pandas as pd
 from tenacity import *
 from gbq_connector import CloudStorageClient
 
-from schoolmint_api import SchoolmintAPI
+from entities.data_source_objects import SourceData
+from entities.data_source_types import DataSourceTypes
 from entities.ftp import FTP
-from utils.data_config import BASE_FILE_NAME
+from schoolmint_api import SchoolmintAPI
 from utils.data_config import COLUMN_RENAME_MAP
-from utils.data_config import CURRENT_YEAR_FOLDER
-from utils.data_config import LOCALDIR
-from utils.data_config import SFTP_ARCHIVE_DIR
-from utils.data_config import SFTP_SOURCE_DIR
-from utils.data_config import SM_REPORT_NAME
 from utils import helpers
 
 

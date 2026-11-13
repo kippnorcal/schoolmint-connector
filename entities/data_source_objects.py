@@ -1,4 +1,4 @@
-from data_source_types import DataSourceType
+from data_source_types import DataSourceTypes
 from utils.data_config import DATA_SOURCE_CONFIG
 
 class SourceData:
@@ -7,7 +7,7 @@ class SourceData:
             self: str,
             local_dir: str,
             sftp_source_dir: str,
-            source_type: DataSourceType,
+            source_type: DataSourceTypes,
             report_name: str,
             base_file_name: str,
             current_year_folder: str,
@@ -32,7 +32,7 @@ class SourceData:
         pass
 
 
-def create_source_data_object(source_type: DataSourceType) -> SourceData:
+def create_source_data_object(source_type: DataSourceTypes) -> SourceData:
     config = DATA_SOURCE_CONFIG[source_type]
     return SourceData(
         local_dir=config("local_dir"),

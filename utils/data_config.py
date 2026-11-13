@@ -1,9 +1,9 @@
-from entities.data_source_types import DataSourceType
+from entities.data_source_types import DataSourceTypes
 
 DATA_SOURCE_CONFIG = {
-    DataSourceType.REGIONAL:{
+    DataSourceTypes.REGIONAL:{
         "local_dir": "files/regional",
-        "source_type": DataSourceType.REGIONAL,
+        "source_type": DataSourceTypes.REGIONAL,
         "sftp_source_dir": "/upload",
         "sftp_archive_dir": "/archive",
         "report_name": "Regional Automated Application Data SFTP",
@@ -12,9 +12,9 @@ DATA_SOURCE_CONFIG = {
         "historical_folder": "schoolmint/schoolmint_raw_application_data_historical",
         "is_api": True,
     },
-    DataSourceType.OAKLAND_ENROLLS: {
+    DataSourceTypes.OAKLAND_ENROLLS: {
         "local_dir": "files/oakland_enrolls",
-        "source_type": DataSourceType.OAKLAND_ENROLLS,
+        "source_type": DataSourceTypes.OAKLAND_ENROLLS,
         "sftp_source_dir": "",
         "sftp_archive_dir": "",
         "report_name": "",
