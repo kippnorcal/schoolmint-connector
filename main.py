@@ -2,11 +2,15 @@ import logging
 import os
 import sys
 import traceback
+from typing import List
 
 from job_notifications import create_notifications
 from gbq_connector import CloudStorageClient
 from gbq_connector import DbtClient
 
+from entities.data_source_objects import create_source_data_object
+from entities.data_source_objects import SourceData
+from entities.data_source_types import DataSourceTypes
 from utils import runtime_args
 from workflows import add_historical_columns_workflow
 from workflows import fetch_regional_data_report_workflow
@@ -30,6 +34,15 @@ args = runtime_args.get_runtime_args()
 notifications = create_notifications("Schoomint Connector", "mailgun")
 
 
+def _set_up_data_source_objects() -> List[SourceData]:
+    data_sources = []
+    for _type in DataSourceTypes:
+        ds = create_source_data_object(_type)
+        ds.school_year = args.school_year
+        data_sources.append(ds)
+    return data_sources
+
+
 def main():
     school_year = args.school_year
     cloud_client = CloudStorageClient()
@@ -37,7 +50,8 @@ def main():
 
     if args.dbt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/dbt refresh")
-        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
+        sources = _set_up_data_source_objects()
+        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
         logging.info("Running dbt snapshot")
         dbt_conn = DbtClient()
         dbt_conn.run_job()
@@ -47,7 +61,8 @@ def main():
         add_historical_columns_workflow.run_workflow(school_year, cloud_client)
     elif args.semt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/SEMT refresh")
-        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
+        sources = _set_up_data_source_objects()
+        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
         job_id = os.getenv("SEMT_JOB_ID")
         logging.info("Refreshing the SEMT datasource")
         dbt_conn = DbtClient()
@@ -61,7 +76,8 @@ def main():
         rename_historical_columns.run_workflow(cloud_client, rename_map)
     else:
         notifications.extend_job_name(f" - {args.school_year}")
-        fetch_regional_data_report_workflow.fetch_report(school_year, cloud_client)
+        sources = _set_up_data_source_objects()
+        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
 
 
 if __name__ == "__main__":
