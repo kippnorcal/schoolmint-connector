@@ -59,6 +59,26 @@ class FTP:
             if stat.S_ISREG(attr.st_mode)
         ]
 
+    def get_latest_file_with_prefix(self, remotedir, prefix):
+        """
+        Get the most recent regular file in the remote directory whose filename
+        starts with the given prefix (case-insensitive).
+
+        :param remotedir: Path of the remote directory
+        :type remotedir: String
+        :param prefix: Text the filename must start with, ignoring case
+        :type prefix: String
+        :return: Attributes of the most recent matching file, or None if no file matches
+        :rtype: paramiko.SFTPAttributes or None
+        """
+        prefix = prefix.lower()
+        matches = [
+            attr
+            for attr in self._list_files(remotedir)
+            if attr.filename.lower().startswith(prefix)
+        ]
+        return max(matches, key=lambda attr: attr.st_mtime, default=None)
+
     def download_dir(self, remotedir, localdir):
         """
         Download all files from the remote directory to the local directory.
