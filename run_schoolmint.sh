@@ -10,7 +10,7 @@ set -euo pipefail
 
 KEY_DIR="/home/data_admin/keys"
 LOCK_FILE="/tmp/run_schoolmint.lock"
-IMAGE="schoolmint"
+IMAGE="schoolmint-connector"
 
 usage() {
     echo "Usage: $0 <school-year> [--dbt-refresh]" >&2
