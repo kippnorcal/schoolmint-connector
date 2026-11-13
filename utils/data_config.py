@@ -2,6 +2,14 @@ import os
 
 from entities.data_source_types import DataSourceTypes
 
+# Blank for now; Deprecating later
+CURRENT_YEAR_FOLDER = ""
+HISTORICAL_FOLDER = ""
+BASE_FILE_NAME = ""
+LOCALDIR = ""
+BASE_FILE_NAME  = ""
+
+
 DATA_SOURCE_CONFIG = {
     DataSourceTypes.REGIONAL:{
         "local_dir": "files/regional",
