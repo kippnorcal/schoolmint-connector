@@ -1,5 +1,16 @@
+from typing import Union
+from dataclasses import dataclass
+
 from data_source_types import DataSourceTypes
 from utils.data_config import DATA_SOURCE_CONFIG
+
+
+@dataclass
+class ApiData:
+    domain: str
+    account_email: str
+    api_token: str
+
 
 class SourceData:
 
@@ -13,7 +24,8 @@ class SourceData:
             current_year_folder: str,
             historical_folder: str,
             sftp_archive_dir: str,
-            is_api: bool,
+            api: Union[ApiData, None],
+            school_year: Union[None, str] = None,
     ):
         self.local_dir = local_dir
         self.sftp_source_dir = sftp_source_dir
@@ -23,17 +35,27 @@ class SourceData:
         self.current_year_folder = current_year_folder
         self.historical_folder = historical_folder
         self.sftp_archive_dir = sftp_archive_dir
-        self.is_api = is_api
+        self.api = api
+        self.school_year = school_year
 
     def generate_download_path(self) -> str:
         pass
 
-    def generate_upload_path(self) -> str:
-        pass
+    def generate_upload_path(self, as_parquet: bool = False) -> str:
+        if as_parquet:
+            return f"{self.current_year_folder}/{self.base_file_name}_{self.school_year}.parquet"
+        else:
+            return f"{self.current_year_folder}/{self.base_file_name}_{self.school_year}.csv"
 
 
 def create_source_data_object(source_type: DataSourceTypes) -> SourceData:
     config = DATA_SOURCE_CONFIG[source_type]
+
+    api_data = config.get("api_connection")
+    api_object = None
+    if api_data is not None:
+        api_object = ApiData(**api_data)
+
     return SourceData(
         local_dir=config("local_dir"),
         sftp_source_dir=config("sftp_source_dir"),
@@ -43,4 +65,5 @@ def create_source_data_object(source_type: DataSourceTypes) -> SourceData:
         current_year_folder=config(),
         historical_folder=config("historical_folder"),
         sftp_archive_dir=config("sftp_archive_dir"),
+        api=api_object
     )
