@@ -51,43 +51,33 @@ def get_latest_file(data_source: DataSource):
     """
     logging.info(f"Checking {data_source.local_dir} for files")
     all_files = os.listdir(data_source.local_dir)
-    matched_files = [file for file in all_files if data_source.report_name in file]
     files = sorted(
-        matched_files,
+        all_files,
         key=lambda file: os.path.getmtime(f"{data_source.local_dir}/{file}"),
         reverse=True,
     )
     if files:
         file = files[0]
         logging.info(f"Downloaded '{file}'.")
-        return file
     else:
-        raise Exception(f"Error: '{data_source.report_name}' was not downloaded.")
+        raise Exception(f"Unable to download file.")
+    return file
 
 
 @retry(wait=wait_fixed(30), stop=stop_after_attempt(60))
-def download_from_ftp(ftp: FTP, data_source: DataSource) -> list:
+def download_from_ftp(ftp: FTP, data_source: DataSource):
     """
     Download data files from FTP. It can take some time for SchoolMint
     to upload the reports after the API request, so we use Tenacity retry
     to wait up to 30 min.
     """
-    logging.info("Attempting to download files")
+    logging.info(f"Attempting to download file from {data_source.sftp_source_dir}")
     if not ftp.get_latest_file_with_prefix(
         data_source.sftp_source_dir, data_source.local_dir, data_source.report_name
     ):
         raise FileNotFoundError(f"No {data_source.report_name} file found on SFTP")
-    regional_file = get_latest_file(data_source)
-    return [regional_file]
-
-
-def prep_files_for_upload(data_source: DataSource, files: list) -> pd. DataFrame:
-    df_container = []
-    for file in files:
-        df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
-        df_container.append(df_file)
-    df = pd.concat(df_container)
-    return df
+    file = get_latest_file(data_source)
+    return file
 
 
 def check_for_new_columns(df: pd.DataFrame) -> bool:
@@ -137,18 +127,18 @@ def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClien
                 delete_data_files(data_source.local_dir)
 
             logging.info("Downloading Files")
-            files = download_from_ftp(ftp, data_source)
+            file = download_from_ftp(ftp, data_source)
         finally:
             ftp.close()
 
-        joined_files = prep_files_for_upload(data_source, files)
-        joined_files["school_year_4_digit"] = data_source.school_year
-        check_for_deleted_columns(joined_files)
-        joined_files = joined_files.rename(columns=COLUMN_RENAME_MAP)
-        if check_for_new_columns(joined_files):
+        df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
+        df_file["school_year_4_digit"] = data_source.school_year
+        check_for_deleted_columns(df_file)
+        df_file = df_file.rename(columns=COLUMN_RENAME_MAP)
+        if check_for_new_columns(df_file):
             logging.info("Filtering out new columns that are not in the config.")
-            joined_files = joined_files[list(COLUMN_RENAME_MAP.values())]
+            df_file = df_file[list(COLUMN_RENAME_MAP.values())]
 
         bucket = os.getenv("BUCKET")
-        cloud_client.load_dataframe_to_cloud_as_csv(bucket, data_source.generate_upload_path(), joined_files)
-        cloud_client.load_dataframe_to_cloud_as_parquet(bucket, data_source.generate_upload_path(as_parquet=True), joined_files)
+        cloud_client.load_dataframe_to_cloud_as_csv(bucket, data_source.generate_upload_path(), df_file)
+        cloud_client.load_dataframe_to_cloud_as_parquet(bucket, data_source.generate_upload_path(as_parquet=True), df_file)
