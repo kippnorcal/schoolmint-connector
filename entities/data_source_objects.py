@@ -57,13 +57,13 @@ def create_source_data_object(source_type: DataSourceTypes) -> DataSource:
         api_object = ApiData(**api_data)
 
     return DataSource(
-        local_dir=config("local_dir"),
-        sftp_source_dir=config("sftp_source_dir"),
-        source_type=config("source_type"),
-        report_name=config("report_name"),
-        base_file_name=config("base_file_name"),
-        current_year_folder=config(),
-        historical_folder=config("historical_folder"),
-        sftp_archive_dir=config("sftp_archive_dir"),
+        local_dir=config.get("local_dir"),
+        sftp_source_dir=config.get("sftp_source_dir"),
+        source_type=config.get("source_type"),
+        report_name=config.get("report_name"),
+        base_file_name=config.get("base_file_name"),
+        current_year_folder=config.get("current_year_folder"),
+        historical_folder=config.get("historical_folder"),
+        sftp_archive_dir=config.get("sftp_archive_dir"),
         api=api_object
     )
