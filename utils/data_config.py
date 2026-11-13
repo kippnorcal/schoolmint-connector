@@ -21,12 +21,11 @@ DATA_SOURCE_CONFIG = {
     DataSourceTypes.OAKLAND_ENROLLS: {
         "local_dir": "files/oakland_enrolls",
         "source_type": DataSourceTypes.OAKLAND_ENROLLS,
-        "sftp_source_dir": "",
-        "sftp_archive_dir": "",
-        "report_name": "",
-        "base_file_name": "",
-        "current_year_folder": "",
-        "historical_folder": "",
+        "sftp_source_dir": "/SISData/reports/Chauvin_Amy_4840796",
+        "report_name": "KIPP_Bridge_Academy_Application_Report",
+        "base_file_name": "schoolmint_oakland_enrolls_raw_data",
+        "current_year_folder": "schoolmint/schoolmint_oakland_enrolls_raw_application_data",
+        "historical_folder": "schoolmint/schoolmint_oakland_enrolls_raw_application_data_historical",
     }
 }
 

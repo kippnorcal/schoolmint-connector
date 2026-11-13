@@ -121,6 +121,7 @@ def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClien
 
     ftp = FTP()
     for data_source in data_sources:
+        logging.info(f"Processing {data_source.source_type.value} data")
         try:
             if data_source.api:
                 ftp.archive_remote_files(data_source.sftp_source_dir)
