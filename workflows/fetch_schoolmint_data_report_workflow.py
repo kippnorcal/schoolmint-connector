@@ -115,9 +115,9 @@ def check_for_deleted_columns(df: pd.DataFrame) -> bool:
 
 def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClient):
 
-    ftp = FTP()
     for data_source in data_sources:
         logging.info(f"Processing {data_source.source_type.value} data")
+        ftp = FTP()
         try:
             if data_source.api:
                 ftp.archive_remote_files(data_source.sftp_source_dir)
