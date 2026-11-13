@@ -9,7 +9,7 @@ from gbq_connector import CloudStorageClient
 from gbq_connector import DbtClient
 
 from entities.data_source_objects import create_source_data_object
-from entities.data_source_objects import SourceData
+from entities.data_source_objects import DataSource
 from entities.data_source_types import DataSourceTypes
 from utils import runtime_args
 from workflows import add_historical_columns_workflow
@@ -34,7 +34,7 @@ args = runtime_args.get_runtime_args()
 notifications = create_notifications("Schoomint Connector", "mailgun")
 
 
-def _set_up_data_source_objects() -> List[SourceData]:
+def _set_up_data_source_objects() -> List[DataSource]:
     data_sources = []
     for _type in DataSourceTypes:
         ds = create_source_data_object(_type)
@@ -51,7 +51,7 @@ def main():
     if args.dbt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/dbt refresh")
         sources = _set_up_data_source_objects()
-        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
+        fetch_schoolmint_data_report_workflow.fetch_report(sources, cloud_client)
         logging.info("Running dbt snapshot")
         dbt_conn = DbtClient()
         dbt_conn.run_job()
@@ -62,7 +62,7 @@ def main():
     elif args.semt_refresh:
         notifications.extend_job_name(f" - {args.school_year} w/SEMT refresh")
         sources = _set_up_data_source_objects()
-        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
+        fetch_schoolmint_data_report_workflow.fetch_report(sources, cloud_client)
         job_id = os.getenv("SEMT_JOB_ID")
         logging.info("Refreshing the SEMT datasource")
         dbt_conn = DbtClient()
@@ -77,7 +77,7 @@ def main():
     else:
         notifications.extend_job_name(f" - {args.school_year}")
         sources = _set_up_data_source_objects()
-        fetch_regional_data_report_workflow.fetch_report(sources, cloud_client)
+        fetch_schoolmint_data_report_workflow.fetch_report(sources, cloud_client)
 
 
 if __name__ == "__main__":

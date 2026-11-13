@@ -2,13 +2,13 @@ import json
 import logging
 import requests
 
-from entities.data_source_objects import SourceData
+from entities.data_source_objects import DataSource
 
 
 class SchoolmintAPI:
     """Class for the SchoolMint API connection."""
 
-    def __init__(self, data_source: SourceData):
+    def __init__(self, data_source: DataSource):
         """Initialize environment variables used to connect to the API."""
         self.api_data = data_source.api
         self.data_source_type = data_source.source_type

@@ -12,7 +12,7 @@ class ApiData:
     api_token: str
 
 
-class SourceData:
+class DataSource:
 
     def __init__(
             self: str,
@@ -48,7 +48,7 @@ class SourceData:
             return f"{self.current_year_folder}/{self.base_file_name}_{self.school_year}.csv"
 
 
-def create_source_data_object(source_type: DataSourceTypes) -> SourceData:
+def create_source_data_object(source_type: DataSourceTypes) -> DataSource:
     config = DATA_SOURCE_CONFIG[source_type]
 
     api_data = config.get("api_connection")
@@ -56,7 +56,7 @@ def create_source_data_object(source_type: DataSourceTypes) -> SourceData:
     if api_data is not None:
         api_object = ApiData(**api_data)
 
-    return SourceData(
+    return DataSource(
         local_dir=config("local_dir"),
         sftp_source_dir=config("sftp_source_dir"),
         source_type=config("source_type"),

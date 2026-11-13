@@ -6,7 +6,7 @@ import pandas as pd
 from tenacity import *
 from gbq_connector import CloudStorageClient
 
-from entities.data_source_objects import SourceData
+from entities.data_source_objects import DataSource
 from entities.ftp import FTP
 from schoolmint_api import SchoolmintAPI
 from utils.data_config import COLUMN_RENAME_MAP
@@ -39,7 +39,7 @@ def delete_data_files(directory: str) -> None:
             os.remove(os.path.join(directory, file))
 
 
-def get_latest_file(data_source: SourceData):
+def get_latest_file(data_source: DataSource):
     """
     Get the file that matches the given name.
     Reverse sort by modification date in case there are multiple.
@@ -65,7 +65,7 @@ def get_latest_file(data_source: SourceData):
 
 
 @retry(wait=wait_fixed(30), stop=stop_after_attempt(60))
-def download_from_ftp(ftp: FTP, data_source: SourceData) -> list:
+def download_from_ftp(ftp: FTP, data_source: DataSource) -> list:
     """
     Download data files from FTP. It can take some time for SchoolMint
     to upload the reports after the API request, so we use Tenacity retry
@@ -77,7 +77,7 @@ def download_from_ftp(ftp: FTP, data_source: SourceData) -> list:
     return [regional_file]
 
 
-def prep_files_for_upload(data_source: SourceData, files: list) -> pd. DataFrame:
+def prep_files_for_upload(data_source: DataSource, files: list) -> pd. DataFrame:
     df_container = []
     for file in files:
         df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
@@ -117,7 +117,7 @@ def check_for_deleted_columns(df: pd.DataFrame) -> bool:
         return False
 
 
-def fetch_report(data_sources: list[SourceData], cloud_client: CloudStorageClient):
+def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClient):
 
     ftp = FTP()
     for data_source in data_sources:
@@ -127,6 +127,7 @@ def fetch_report(data_sources: list[SourceData], cloud_client: CloudStorageClien
                 ftp.delete_old_archive_files(data_source.sftp_archive_dir)
                 logging.info("Getting API data")
                 SchoolmintAPI(data_source).request_report()
+
             if int(os.getenv("DELETE_LOCAL_FILES")):
                 delete_data_files(data_source.local_dir)
 
