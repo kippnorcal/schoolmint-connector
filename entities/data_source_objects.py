@@ -1,7 +1,7 @@
 from typing import Union
 from dataclasses import dataclass
 
-from data_source_types import DataSourceTypes
+from .data_source_types import DataSourceTypes
 from utils.data_config import DATA_SOURCE_CONFIG
 
 
