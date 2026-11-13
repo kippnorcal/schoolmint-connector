@@ -1,3 +1,5 @@
+import os
+
 from entities.data_source_types import DataSourceTypes
 
 DATA_SOURCE_CONFIG = {
@@ -10,7 +12,11 @@ DATA_SOURCE_CONFIG = {
         "base_file_name": "schoolmint_raw_data",
         "current_year_folder": "schoolmint/schoolmint_raw_application_data",
         "historical_folder": "schoolmint/schoolmint_raw_application_data_historical",
-        "is_api": True,
+        "api_connection": {
+            "domain": os.getenv("API_DOMAIN_REGIONAL"),
+            "account_email": os.getenv("API_ACCOUNT_EMAIL_REGIONAL"),
+            "api_token": os.getenv("API_TOKEN_REGIONAL"),
+        }
     },
     DataSourceTypes.OAKLAND_ENROLLS: {
         "local_dir": "files/oakland_enrolls",
@@ -21,7 +27,6 @@ DATA_SOURCE_CONFIG = {
         "base_file_name": "",
         "current_year_folder": "",
         "historical_folder": "",
-        "is_api": False,
     }
 }
 
