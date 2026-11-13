@@ -1,41 +1,29 @@
 import json
 import logging
-import os
 import requests
+
+from entities.data_source_objects import SourceData
 
 
 class SchoolmintAPI:
     """Class for the SchoolMint API connection."""
 
-    def __init__(self, env_suffixes: list):
+    def __init__(self, data_source: SourceData):
         """Initialize environment variables used to connect to the API."""
-        self.endpoints = []
-        for suffix in env_suffixes:
-            self.endpoints.append(
-                {
-                    "domain": os.getenv(f"API_DOMAIN{suffix}"),
-                    "account_email": os.getenv(f"API_ACCOUNT_EMAIL{suffix}"),
-                    "api_token": os.getenv(f"API_TOKEN{suffix}"),
-                }
-            )
+        self.api_data = data_source.api
+        self.data_source_type = data_source.source_type
 
-    def _post_demand_export(self, endpoint):
+    def request_report(self) -> None:
         """
         Post request to SchoolMint API. This triggers report generation 
         and upload to FTP associated with the report.
-        
-        :param api_token: API token for the report.
-        :type api_token: String
         """
-        domain = endpoint.get("domain")
-        account_email = endpoint.get("account_email")
-        api_token = endpoint.get("api_token")
-        url = "https://" + domain + "/api/v2/demand_exports"
-        headers = {"Api-Token": api_token}
-        body = {"account_email": account_email}
+        url = f"https://{self.api_data.domain}/api/v2/demand_exports"
+        headers = {"Api-Token": self.api_data.api_token}
+        body = {"account_email": self.api_data.account_email}
         response = requests.post(url, headers=headers, data=body)
         if response.ok:
-            j_data = json.loads(response.content.decode())
+            logging.info(f"API respose for {self.data_source_type.value} is successful")
         else:
             j_data = json.loads(response.content.decode())
             logging.info(
@@ -45,8 +33,3 @@ class SchoolmintAPI:
             )
             logging.info("Error Message: " + j_data["error_msg"])
             response.raise_for_status()
-
-    def request_reports(self):
-        """Demand export for each API token."""
-        for endpoint in self.endpoints:
-            self._post_demand_export(endpoint)
