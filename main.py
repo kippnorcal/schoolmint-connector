@@ -13,7 +13,7 @@ from entities.data_source_objects import SourceData
 from entities.data_source_types import DataSourceTypes
 from utils import runtime_args
 from workflows import add_historical_columns_workflow
-from workflows import fetch_regional_data_report_workflow
+from workflows import fetch_schoolmint_data_report_workflow
 from workflows import generate_schema_workflow
 from workflows import rename_historical_columns
 
