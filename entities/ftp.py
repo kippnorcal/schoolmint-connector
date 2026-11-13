@@ -59,17 +59,19 @@ class FTP:
             if stat.S_ISREG(attr.st_mode)
         ]
 
-    def get_latest_file_with_prefix(self, remotedir, prefix):
+    def get_latest_file_with_prefix(self, remotedir, localdir, prefix):
         """
-        Get the most recent regular file in the remote directory whose filename
-        starts with the given prefix (case-insensitive).
+        Download the most recent regular file in the remote directory whose
+        filename starts with the given prefix (case-insensitive).
 
         :param remotedir: Path of the remote directory
         :type remotedir: String
+        :param localdir: Path of the local directory that we are saving the file to
+        :type localdir: String
         :param prefix: Text the filename must start with, ignoring case
         :type prefix: String
-        :return: Attributes of the most recent matching file, or None if no file matches
-        :rtype: paramiko.SFTPAttributes or None
+        :return: True if a matching file was found and downloaded, False otherwise
+        :rtype: Boolean
         """
         prefix = prefix.lower()
         matches = [
@@ -77,7 +79,18 @@ class FTP:
             for attr in self._list_files(remotedir)
             if attr.filename.lower().startswith(prefix)
         ]
-        return max(matches, key=lambda attr: attr.st_mtime, default=None)
+        latest = max(matches, key=lambda attr: attr.st_mtime, default=None)
+        if latest is None:
+            logger.info(f"No files starting with '{prefix}' found in {remotedir}")
+            return False
+
+        time.sleep(30)  # wait to allow the file to finish uploading
+        local_file = os.path.join(localdir, latest.filename)
+        logger.info(f"Downloading {latest.filename} to {local_file}")
+        self.ftpsrv.get(posixpath.join(remotedir, latest.filename), local_file)
+        # preserve mtime so the latest file can be found by modification date
+        os.utime(local_file, (latest.st_atime, latest.st_mtime))
+        return True
 
     def download_dir(self, remotedir, localdir):
         """

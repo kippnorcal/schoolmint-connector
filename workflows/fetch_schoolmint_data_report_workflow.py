@@ -49,6 +49,7 @@ def get_latest_file(data_source: DataSource):
     :return: Name of the most recently modified file with the given name
     :rtype: String
     """
+    logging.info(f"Checking {data_source.local_dir} for files")
     all_files = os.listdir(data_source.local_dir)
     matched_files = [file for file in all_files if data_source.report_name in file]
     files = sorted(
@@ -72,7 +73,10 @@ def download_from_ftp(ftp: FTP, data_source: DataSource) -> list:
     to wait up to 30 min.
     """
     logging.info("Attempting to download files")
-    ftp.download_dir(data_source.sftp_source_dir, data_source.local_dir)
+    if not ftp.get_latest_file_with_prefix(
+        data_source.sftp_source_dir, data_source.local_dir, data_source.report_name
+    ):
+        raise FileNotFoundError(f"No {data_source.report_name} file found on SFTP")
     regional_file = get_latest_file(data_source)
     return [regional_file]
 
