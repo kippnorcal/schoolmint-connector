@@ -52,8 +52,9 @@ def get_latest_file(data_source: DataSource):
     """
     logging.info(f"Checking {data_source.local_dir} for files")
     all_files = os.listdir(data_source.local_dir)
+    data_files = [file for file in all_files if file != ".gitkeep"]
     files = sorted(
-        all_files,
+        data_files,
         key=lambda file: os.path.getmtime(f"{data_source.local_dir}/{file}"),
         reverse=True,
     )
