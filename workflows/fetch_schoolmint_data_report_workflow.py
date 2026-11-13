@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import List
 
 import pandas as pd
@@ -72,6 +73,7 @@ def download_from_ftp(ftp: FTP, data_source: DataSource):
     to wait up to 30 min.
     """
     logging.info(f"Attempting to download file from {data_source.sftp_source_dir}")
+    time.sleep(30)  # wait to allow the API files to download
     if not ftp.get_latest_file_with_prefix(
         data_source.sftp_source_dir, data_source.local_dir, data_source.report_name
     ):

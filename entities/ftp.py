@@ -80,11 +80,12 @@ class FTP:
             if attr.filename.lower().startswith(prefix)
         ]
         latest = max(matches, key=lambda attr: attr.st_mtime, default=None)
+        print("here1")
         if latest is None:
             logger.info(f"No files starting with '{prefix}' found in {remotedir}")
             return False
 
-        time.sleep(30)  # wait to allow the file to finish uploading
+        print("here2")
         local_file = os.path.join(localdir, latest.filename)
         logger.info(f"Downloading {latest.filename} to {local_file}")
         self.ftpsrv.get(posixpath.join(remotedir, latest.filename), local_file)
