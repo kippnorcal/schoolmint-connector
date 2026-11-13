@@ -8,6 +8,7 @@ from tenacity import *
 from gbq_connector import CloudStorageClient
 
 from entities.data_source_objects import DataSource
+from entities.data_source_types import DataSourceTypes
 from entities.ftp import FTP
 from schoolmint_api import SchoolmintAPI
 from utils.data_config import COLUMN_RENAME_MAP
@@ -134,7 +135,7 @@ def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClien
 
             df_file = read_csv_to_df(f"{data_source.local_dir}/{file}")
             df_file["school_year_4_digit"] = data_source.school_year
-            if data_source.source_type.REGIONAL:
+            if data_source.source_type == DataSourceTypes.REGIONAL:
                 check_for_deleted_columns(df_file)
                 df_file = df_file.rename(columns=COLUMN_RENAME_MAP)
                 if check_for_new_columns(df_file):
