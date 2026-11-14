@@ -59,23 +59,37 @@ class FTP:
             if stat.S_ISREG(attr.st_mode)
         ]
 
-    def download_dir(self, remotedir, localdir):
+    def get_latest_file_with_prefix(self, remotedir, localdir, prefix):
         """
-        Download all files from the remote directory to the local directory.
+        Download the most recent regular file in the remote directory whose
+        filename starts with the given prefix (case-insensitive).
 
-        :param remotedir: Path of the remote directory that we are getting files from (ie. the FTP directory)
+        :param remotedir: Path of the remote directory
         :type remotedir: String
-        :param localdir: Path of the local directory that we are saving files to
+        :param localdir: Path of the local directory that we are saving the file to
         :type localdir: String
+        :param prefix: Text the filename must start with, ignoring case
+        :type prefix: String
+        :return: True if a matching file was found and downloaded, False otherwise
+        :rtype: Boolean
         """
-        # 2 is the number of files plus the archive directory
-        if len(self.ftpsrv.listdir(remotedir)) >= 1:
-            time.sleep(30)  # wait to allow the files to finish uploading
-            for attr in self._list_files(remotedir):
-                local_file = os.path.join(localdir, attr.filename)
-                self.ftpsrv.get(posixpath.join(remotedir, attr.filename), local_file)
-                # preserve mtime so the latest file can be found by modification date
-                os.utime(local_file, (attr.st_atime, attr.st_mtime))
+        prefix = prefix.lower()
+        matches = [
+            attr
+            for attr in self._list_files(remotedir)
+            if attr.filename.lower().startswith(prefix)
+        ]
+        latest = max(matches, key=lambda attr: attr.st_mtime, default=None)
+        if latest is None:
+            logger.info(f"No files starting with '{prefix}' found in {remotedir}")
+            return False
+
+        local_file = os.path.join(localdir, latest.filename)
+        logger.info(f"Downloading {latest.filename} to {local_file}")
+        self.ftpsrv.get(posixpath.join(remotedir, latest.filename), local_file)
+        # preserve mtime so the latest file can be found by modification date
+        os.utime(local_file, (latest.st_atime, latest.st_mtime))
+        return True
 
     def archive_remote_files(self, remotedir):
         """

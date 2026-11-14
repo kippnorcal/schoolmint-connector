@@ -1,0 +1,30 @@
+name: Build on Server
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  remote-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into server and rebuild Docker image
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SETI_HOST }}
+          username: ${{ secrets.SETI_USER }}
+          key: ${{ secrets.SETI_SSH_KEY }}
+          script: |
+  
+            cd ${{ secrets.SETI_ROOT}}/${{ github.event.repository.name }}
+            echo "Pulling latest code..."
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+
+            echo "Building new Docker image..."
+            docker build -t ${{ github.event.repository.name }} .
+
+            echo "Pruning old images..."
+            docker image prune -f

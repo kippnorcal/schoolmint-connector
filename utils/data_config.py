@@ -1,14 +1,41 @@
+import os
 
-# Folders for SFTP Transfer
-LOCALDIR = "files"
-SFTP_SOURCE_DIR = "/upload"
-SFTP_ARCHIVE_DIR = "/archive"
-SM_REPORT_NAME = "Regional Automated Application Data SFTP"
+from entities.data_source_types import DataSourceTypes
 
-# Paths in Google Cloud Storage
-BASE_FILE_NAME = "schoolmint_raw_data"
-CURRENT_YEAR_FOLDER = "schoolmint/schoolmint_raw_application_data"
-HISTORICAL_FOLDER = "schoolmint/schoolmint_raw_application_data_historical"
+# Blank for now; Deprecating later
+CURRENT_YEAR_FOLDER = ""
+HISTORICAL_FOLDER = ""
+BASE_FILE_NAME = ""
+LOCALDIR = ""
+BASE_FILE_NAME  = ""
+
+
+DATA_SOURCE_CONFIG = {
+    DataSourceTypes.REGIONAL:{
+        "local_dir": "files/regional",
+        "source_type": DataSourceTypes.REGIONAL,
+        "sftp_source_dir": "/upload",
+        "sftp_archive_dir": "/archive",
+        "report_name": "Regional Automated Application Data SFTP",
+        "base_file_name": "schoolmint_raw_data",
+        "current_year_folder": "schoolmint/schoolmint_raw_application_data",
+        "historical_folder": "schoolmint/schoolmint_raw_application_data_historical",
+        "api_connection": {
+            "domain": os.getenv("API_DOMAIN_REGIONAL"),
+            "account_email": os.getenv("API_ACCOUNT_EMAIL_REGIONAL"),
+            "api_token": os.getenv("API_TOKEN_REGIONAL"),
+        }
+    },
+    DataSourceTypes.OAKLAND_ENROLLS: {
+        "local_dir": "files/oakland_enrolls",
+        "source_type": DataSourceTypes.OAKLAND_ENROLLS,
+        "sftp_source_dir": "/SISData/reports/Chauvin_Amy_4840796",
+        "report_name": "KIPP_Bridge_Academy_Application",
+        "base_file_name": "schoolmint_oakland_enrolls_raw_data",
+        "current_year_folder": "schoolmint/schoolmint_oakland_enrolls_raw_application_data",
+        "historical_folder": "schoolmint/schoolmint_oakland_enrolls_raw_application_data_historical",
+    }
+}
 
 # Some of the colum names of the schoolmint report are incredibly long, so this map renames these columns
 COLUMN_RENAME_MAP = {
