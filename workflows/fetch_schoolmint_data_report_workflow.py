@@ -143,7 +143,11 @@ def fetch_report(data_sources: list[DataSource], cloud_client: CloudStorageClien
                     df_file = df_file[list(COLUMN_RENAME_MAP.values())]
 
             bucket = os.getenv("BUCKET")
-            cloud_client.load_dataframe_to_cloud_as_csv(bucket, data_source.generate_upload_path(), df_file)
+            csv_upload_path = data_source.generate_upload_path()
+            parquet_upload_path = data_source.generate_upload_path(as_parquet=True)
+            cloud_client.load_dataframe_to_cloud_as_csv(bucket, csv_upload_path, df_file)
+            logging.info(f"Uploading CSV file for {data_source.source_type.value} file to: {csv_upload_path}")
             cloud_client.load_dataframe_to_cloud_as_parquet(bucket, data_source.generate_upload_path(as_parquet=True), df_file)
+            logging.info(f"Uploading Parquet file for {data_source.source_type.value} file to: {parquet_upload_path}")
         finally:
             ftp.close()
