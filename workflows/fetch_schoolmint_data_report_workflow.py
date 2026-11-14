@@ -1,7 +1,6 @@
 import logging
 import os
 import time
-from typing import List
 
 import pandas as pd
 from tenacity import *
@@ -10,7 +9,7 @@ from gbq_connector import CloudStorageClient
 from entities.data_source_objects import DataSource
 from entities.data_source_types import DataSourceTypes
 from entities.ftp import FTP
-from schoolmint_api import SchoolmintAPI
+from entities.schoolmint_api import SchoolmintAPI
 from utils.data_config import COLUMN_RENAME_MAP
 from utils import helpers
 
